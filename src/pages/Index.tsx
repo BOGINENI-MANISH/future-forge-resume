@@ -1,12 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, FileText, Zap, Star, ArrowRight, Brain } from "lucide-react";
+import { Sparkles, FileText, Zap, Star, ArrowRight, Brain, User } from "lucide-react";
 import heroImage from "@/assets/hero-resume-builder.jpg";
 import ResumeBuilder from "@/components/ResumeBuilder";
 
 const Index = () => {
   const [showBuilder, setShowBuilder] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const userData = localStorage.getItem('resumeai_user');
+    if (userData) {
+      const user = JSON.parse(userData);
+      setIsSignedIn(true);
+      setUserEmail(user.email);
+    }
+  }, []);
 
   if (showBuilder) {
     return <ResumeBuilder onBack={() => setShowBuilder(false)} />;
@@ -22,8 +35,31 @@ const Index = () => {
             <h1 className="text-2xl font-bold text-foreground">ResumeAI</h1>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost">Sign In</Button>
-            <Button variant="outline">Get Started</Button>
+            {isSignedIn ? (
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  <span className="text-sm text-muted-foreground">{userEmail}</span>
+                </div>
+                <Button 
+                  variant="ghost"
+                  onClick={() => {
+                    localStorage.removeItem('resumeai_user');
+                    setIsSignedIn(false);
+                    setUserEmail("");
+                  }}
+                >
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <Button variant="ghost" onClick={() => navigate('/signin')}>
+                Sign In
+              </Button>
+            )}
+            <Button variant="outline" onClick={() => navigate('/features')}>
+              Get Started
+            </Button>
           </div>
         </div>
       </header>
@@ -56,8 +92,12 @@ const Index = () => {
                 Build My Resume Now
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button variant="outline" size="xl">
-                See Examples
+              <Button 
+                variant="outline" 
+                size="xl"
+                onClick={() => navigate('/features')}
+              >
+                See AI Features
               </Button>
             </div>
 
